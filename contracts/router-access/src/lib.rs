@@ -160,7 +160,7 @@ impl RouterAccess {
         env.storage().instance().set(&key, &expiry_timestamp);
 
         env.events().publish(
-            (Symbol::new(&env, "role_grant"),),
+            (Symbol::new(&env, "role_granted"),),
             (account, role, expiry_timestamp),
         );
         Ok(())
