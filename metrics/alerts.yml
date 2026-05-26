@@ -1,0 +1,42 @@
+groups:
+  - name: stellar-router.rules
+    rules:
+      - alert: RouterMiddlewareCircuitBreakerOpen
+        expr: |
+          sum by (contract, route) (router_middleware_circuit_open{job!=""}) > 0
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Circuit breaker open for route {{ $labels.route }}"
+          description: "Circuit breaker is open on route {{ $labels.route }} for contract {{ $labels.contract }}. Investigate upstream failures or increase tolerance."
+
+      - alert: RouterMiddlewareHighFailureRate
+        expr: |
+          increase(router_middleware_failure_count[5m]) > 10
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High failure count on route"
+          description: "Route {{ $labels.route }} on contract {{ $labels.contract }} has high consecutive failures (increase > 10 in 5m). Consider throttling traffic or investigating downstream services."
+
+      - alert: RouterMiddlewareHighErrorRate
+        expr: |
+          increase(router_scrape_errors_total[5m]) > 0
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Scrape errors detected for router exporter"
+          description: "The exporter has observed scrape errors for router contracts in the last 10m. Check RPC connectivity and contract availability."
+
+      - alert: RouterMiddlewareRateLimitViolations
+        expr: |
+          increase(router_middleware_total_calls[5m]) > 10000
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High request volume detected"
+          description: "Total pre_call invocations increased by >10k in 5m for contract {{ $labels.contract }}, which may indicate abuse or traffic spike."
