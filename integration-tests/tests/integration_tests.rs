@@ -39,12 +39,11 @@
 mod integration {
     pub mod failure_scenarios;
     pub mod full_flow_test;
-    pub mod testnet_setup;
 }
 
 #[cfg(test)]
 mod quick_tests {
-    use super::integration::testnet_setup::TestAccount;
+    use integration_tests::TestAccount;
 
     #[test]
     #[ignore]
@@ -91,7 +90,7 @@ mod quick_tests {
         println!("✓ Generated account: {}", account.address);
 
         account
-            .fund()
+            .fund("testnet")
             .expect("Failed to fund account via Friendbot");
         println!("✓ Account funded successfully");
 
